@@ -1,0 +1,221 @@
+package com.dev.pilafix.admin.center_manage.impl;
+
+import java.sql.Timestamp;
+import java.util.List;
+
+import javax.mail.AuthenticationFailedException;
+import javax.mail.MessagingException;
+import javax.mail.internet.MimeMessage;
+import javax.servlet.http.HttpSession;
+
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.MimeMessageHelper;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.stereotype.Service;
+
+import com.dev.pilafix.admin.center_manage.CenterService;
+import com.dev.pilafix.admin.center_manage.SendEmailHistoryVO;
+import com.dev.pilafix.common.member.CenterVO;
+import com.dev.pilafix.common.sendsmshistory.SendSmsHistoryVO;
+import com.dev.pilafix.common.sendsmshistory.impl.SendSmsHistoryDAO;
+import com.dev.pilafix.common.sendsmshistory.impl.SendSmsHistoryDAO;
+
+@Service
+public class CenterServiceImpl implements CenterService {
+	
+	@Autowired
+	private CenterDAO dao;
+	
+	@Autowired 
+	private SendSmsHistoryDAO smsHistoryDao;
+
+	@Autowired
+	private JavaMailSender mailSender;
+	
+	@Override
+	public List<CenterVO> getCenterList() {
+		return dao.getCenterList();
+	}
+	
+
+	@Override
+	public CenterVO getCenter(int ctCode) {
+		return dao.getCenter(ctCode);
+	}
+	
+	/**
+	 * 문자발송 이력 관리 
+	 */
+	@Override
+	public List<SendSmsHistoryVO> getSmsHistory(int ctCode) {
+		return smsHistoryDao.getSendSmsHistoryListForCenter(ctCode);
+	}
+
+	@Override
+	public int insertCenter(CenterVO center) {
+		return dao.insertCenter(center);
+	}
+
+	@Override
+	public int updateCenter(CenterVO center) {
+		return dao.updateCenter(center);
+	}
+
+	@Override
+	public int deleteCenter(int ctCode) {
+		return dao.deleteCenter(ctCode);
+	}
+
+	/**
+	 * 아이디 중복 체크 
+	 */
+	@Override
+	public int idCheck(String ctId){
+		return dao.idCheck(ctId);
+	}
+	
+	/**
+	 * 이메일 중복 체크 
+	 */
+	@Override
+	public int emailCheck(String ownerEmail){
+		return dao.emailCheck(ownerEmail);
+	}
+
+	/**
+	 * 이메일 발송 및 이력 등록
+	 */
+    @Override
+    public void sendEmailAndInsertSendEmailHistory(CenterVO center) {
+    	
+    	System.out.println("service 호출");
+    	
+    	int flag = 0;// 발송 성공 여부
+    	String errorMessage=""; //에러 시 실패 사유 
+    	
+        String ownerEmail = center.getOwnerEmail();
+        String ctId = center.getCtId();
+        String ctPassword = center.getCtPassword();
+        String ownerName = center.getOwnerName();
+		
+		//====이메일 발송======
+	    String from = "pilafix1@gmail.com"; //보내는 사람
+	    String title = "[필라픽스] 센터 등록 완료 안내"; // 제목
+	    String toSend = ownerEmail; //받는 사람
+
+	    //메일 내용
+	    StringBuilder content = new StringBuilder();
+	    content.append("<html><body style='font-family: Arial, sans-serif; padding: 20px; background-color: #f4f4f4;'>");
+	    content.append("<div style='background-color: #ffffff; padding: 20px; border-radius: 5px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);'>");
+	    content.append("<h1 style='color: #333333; text-align: center;'>센터 등록 완료 안내</h1>");
+	    content.append("<p style='color: #555555; text-align: center;'>");
+	    content.append(ownerName);
+	    content.append(" 대표님, ");
+	    content.append(center.getCtName());
+	    content.append(" 센터 등록이 완료되었습니다.</p>");
+	    content.append("<p style='color: #555555; text-align: center;'>아래 계정으로 로그인 후, 비밀번호를 꼭 변경하여 주시기 바랍니다.</p>");
+	    content.append("<p style='margin-top: 20px; text-align: center;'><strong>아이디: </strong>");
+	    content.append(ctId);
+	    content.append("</p><p style='text-align: center;'><strong>비밀번호: </strong>");
+	    content.append(ctPassword);
+	    content.append("</p>");
+	    content.append("<p style='color: #555555; text-align: center;'>필라픽스를 이용해주셔서 감사합니다.</p>");
+	    content.append("</div></body></html>");
+		
+		try {
+			MimeMessage message = mailSender.createMimeMessage();
+			MimeMessageHelper messageHelper;
+
+			messageHelper = new MimeMessageHelper(message, true, "UTF-8");
+			messageHelper.setFrom(from); // 보내는사람 (필수)
+		    messageHelper.setTo(toSend); // 받는사람 이메일
+		    messageHelper.setSubject(title); // 메일제목
+
+		    // HTML 형식의 이메일 내용 설정
+		    messageHelper.setText(content.toString(), true); // 메일 내용을 HTML 형식으로 설정
+
+		    mailSender.send(message);
+		    
+		    flag=1;
+		}catch (AuthenticationFailedException afe) {
+		    System.out.println(afe.getMessage());
+		    afe.printStackTrace();
+		} catch (MessagingException me) {
+		    errorMessage = me.getMessage();
+		    me.printStackTrace();
+		} catch (Exception e) {
+		    errorMessage = e.getMessage();
+		    e.printStackTrace();
+		}
+		
+		//====이메일 발송 이력 등록======
+		SendEmailHistoryVO email = new SendEmailHistoryVO();
+		email.setMhEmailSendType("센터계정생성");
+		email.setMhRecipientName(center.getOwnerName());
+		email.setMhRecipientTitle(title);
+		Document doc = Jsoup.parse(content.toString());//html 태그 파싱 
+		email.setMhRecipientContent(doc.text());
+		email.setMhRecipientEmail(toSend);
+
+		if(flag == 1) {
+			email.setMhSuccessYN(true);
+			email.setMhSuccessDate(Timestamp.valueOf(java.time.LocalDateTime.now()));
+		}else {
+			email.setMhSuccessYN(false);
+			email.setMhFailReason(errorMessage);
+		}
+		dao.sendEmail(email);
+    }
+
+    
+    /**
+     * 센터 등록 및 세션 저장 
+     */
+    @Override
+    public void insertCenterAndSetSession(CenterVO center, HttpSession session) {
+    	//이메일 전송을 위해 세션에 center 객체 저장
+    	session.setAttribute("pw", center.getCtPassword()); // 암호화 전 pw 저장 
+    	session.setAttribute("center", center);
+   
+    	// 클라이언트에게 pw 전송(세션에 세팅 후 암호화)
+    	BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
+    	String encodedPwd = encoder.encode(center.getCtPassword());
+    	center.setCtPassword(encodedPwd);
+    	
+    	dao.insertCenter(center);
+    }
+
+    
+    /**
+     * 계약 해지 메서드 
+     * 파라미터로 받은 ctCode에 해당하는 센터의 계약 해지 true 변경
+     */
+	@Override
+	public void revokeCenter(int ctCode) {
+		dao.revokeCenter(ctCode);
+
+	}
+	
+	/**
+	 * 비밀번호 초기화 메서드 
+	 */
+	@Override
+	public void resetPassword(int ctCode) {
+    	BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
+    	String pw = encoder.encode("1111");
+		dao.resetPassword(pw, ctCode);
+	}	
+	
+	/**
+	 * 센터 엑셀 다운로드 
+	 */
+	@Override
+	public List<CenterVO> getExcelCenterList() {
+		return dao.getExcelCenterList();
+	}
+
+
+}

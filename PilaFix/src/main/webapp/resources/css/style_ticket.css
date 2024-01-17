@@ -1,0 +1,233 @@
+@charset "UTF-8";
+
+@import
+	url('https://cdn.rawgit.com/moonspam/NanumSquare/master/nanumsquare.css')
+	;
+
+.text-center {
+	display: inline-box;
+}
+
+
+
+.text-center select {
+	appearance: none;
+	-webkit-appearance: none;
+	-moz-appearance: none;
+	background: transparent;
+	border: none;
+	padding: 6px 12px;
+	border-radius: 0;
+	border-bottom: 1px solid #ced4da;
+	cursor: pointer;
+	font-size: 17px; /* 글자 크기 조절 */
+	color: #555; /* 글자 색상 조절 */
+	position: relative;
+	background:
+		url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%23555"><path d="M7 10l5 5 5-5z" /></svg>')
+		no-repeat right 12px center/30px 40px;
+}
+
+/* 활성화된 셀렉트 박스 스타일 */
+.text-center select:focus {
+	outline: none;
+	box-shadow: none;
+	border-bottom: 2px solid #946CEE; /* 선택 시 밑줄 색상 조절 */
+}
+
+.card text-center {
+	height: 700px; /* 원하는 높이로 수정하세요 */
+	overflow-y: auto; /* 내용이 높이를 초과하는 경우 스크롤을 표시할 수 있도록 설정 */
+}
+
+/* 선택된 옵션 스타일 */
+.text-center select option[selected] {
+	background-color: #946CEE; /* 선택된 옵션 배경색 조절 */
+	color: #fff; /* 선택된 옵션 글자색 조절 */
+}
+
+/* 리스트 간 구분선 스타일 지정 */
+.list-group-ticket li {
+	border-bottom: 1px solid #c1acdd; /* 구분선 스타일 지정 */
+}
+
+/* 호버 시 배경색 변환 스타일 지정 */
+.list-group-ticket li:hover {
+	background-color: #ad95d5; /* 호버 시 배경색 지정 */
+	color: #ffffff;
+}
+
+.list-group-ticket-container {
+	border: 1px solid #ddd; /* 원하는 테두리 스타일 및 색상을 지정하세요 */
+	border-radius: 8px; /* 테두리의 모서리를 둥글게 만들기 위해 추가 */
+	overflow: hidden; /* 내용이 테두리를 넘어가지 않도록 처리 */
+}
+
+#clickButton {
+	border: 2px solid #9b56e9;
+	border-radius: 10px;
+	transition: background-color 0.3s, color 0.3s, border-color 0.3s;
+	cursor: pointer;
+	height: 700px;
+	color: #fff;
+}
+
+#clickButton .card-body {
+	height: 100%;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+}
+
+#coloredCanvas {
+	transition: filter 0.3s;
+	max-width: 100%;
+	height: auto; /* 이미지 비율 유지 */
+}
+
+.tab-buttons {
+	display: flex;
+	justify-content: center;
+	margin-bottom: 20px;
+}
+
+.tab-content {
+	border: 1px solid #bdb7e1;
+	border-radius: 8px;
+	padding: 20px;
+}
+
+/* 버튼 */
+.nav-tabs {
+	width: 100%; /* Adjust this value as needed */
+}
+
+.nav-tabs .nav-item {
+	flex-grow: 1;
+	text-align: center;
+}
+
+.nav-tabs .nav-link {
+	width: 100%;
+}
+
+/* 수강권 결제쪽 */
+.ticket-item {
+	height: 700px;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+}
+
+.list-group-item-action {
+  transition: background-color 0.3s, box-shadow 0.3s; /* 호버 효과를 부드럽게 만들기 위한 트랜지션 */
+  color: #333; 
+}
+
+.list-group-item-action:hover {
+  background-color: rgba(155, 86, 233, 0.4); /* 투명도를 조절하려면 여기서 알파 값을 조절하세요 */
+  color: white; /* 호버 시 텍스트 색상 변경 */
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.3); /* 호버 시 약간의 그림자 효과 */
+}
+
+#coloredCanvas {
+	width: 100px;
+	height: 100px;
+	margin-bottom: 20px;
+}
+
+.card-title {
+	color: #484848;
+	font-weight: bold;
+}
+
+
+
+.card-body-title {
+	font-size: 1.0em;
+	margin-top: 5px;
+	color: #333;
+}
+
+textarea {
+	width: 100%;
+	height: 100px;
+	margin-top: 10px;
+	padding: 10px;
+	border: 1px solid #ccc;
+	border-radius: 5px;
+	resize: none;
+}
+
+#ticketBuy {
+	margin-top: -20px;
+}
+
+.form-check-label {
+	font-size: 14px;
+	color: #333;
+	display: flex;
+	align-items: center;
+}
+
+ul {
+	list-style: none;
+	padding: 10px;
+}
+
+/* 각 리스트 아이템 스타일링 */
+.ticket-list-li {
+	margin-bottom: 10px;
+}
+
+/* 아이콘 이미지 스타일링 */
+.bar-icon {
+	width: 20px; /* 원하는 이미지 너비로 조절 */
+	height: auto; /* 이미지 높이 자동으로 조절 */
+	margin-right: 5px; /* 이미지와 텍스트 사이 간격 조절 */
+	vertical-align: middle; /* 이미지를 수직 중앙 정렬 */
+}
+
+/*sumi 추가 css*/
+/* 수강권 상세 정보 리스트*/
+.card-body-detail>ul>li {
+	list-style: none;
+	margin: 10px 2px;
+}
+
+.card-body-detail {
+	flex: 1 1 auto;
+	margin: 10px 0px;
+	background-color: white /*var(--bs-card-color)*/;
+	text-align: left; /*왼쪽 정렬 추가*/
+}
+
+/*수강권 리스트에서 가격 굵게 나타내기*/
+.tkPrice {
+	font-weight: bold;
+	text-align: right;
+	display: block;
+}
+
+/* 수강권 상세 화면 이용정책 부분*/
+.policy-area {
+	margin: 0px 10px 20px;
+	padding-bottom: 10px;
+	text-align: left;
+}
+
+/* 수강권 상세 <li>태그에 적용 */
+.ticket-list-li {
+	margin-bottom: 10px;
+}
+
+/* 수강권 상세에 리스트 앞에 보라색 bar이미지 */
+.bar-icon {
+	content: url("../images/purple_bar.png");
+}
+
+/* 수강권 클릭하기 전엔 수강권 상세 내용 숨김처리*/
+.card-content1-replace {
+	display: none;
+}

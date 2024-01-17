@@ -1,0 +1,55 @@
+@charset "UTF-8";
+@import url('https://cdn.rawgit.com/moonspam/NanumSquare/master/nanumsquare.css');
+
+
+.info-box {
+    margin: 50px auto;
+    max-width: 700px;
+    padding: 20px;
+    border: 1px solid #ccc;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.info-box04 {
+    padding: 10px;
+    margin: 10px 0;
+    border-bottom: 1px solid #dee2e6;
+}
+
+.info-box04 p {
+    margin: 0;
+    font-size: 16px;
+    line-height: 1.5;
+}
+
+.info-box04 a {
+    text-decoration: none;
+    font-weight: bold;
+}
+
+.info-box04 a:hover {
+    text-decoration: underline;
+}
+
+#userInfo {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+#myInfoLink {
+    text-decoration: underline;
+    cursor: pointer;
+}
+
+#userInfoText {
+    flex: 1;
+    text-align: right;
+}
+
+#logout {
+    text-decoration: underline;
+    cursor: pointer;
+    margin-left: 10px;
+}

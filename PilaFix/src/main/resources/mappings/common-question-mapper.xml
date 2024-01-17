@@ -1,0 +1,233 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+
+<mapper namespace="QuestionDAO">
+	<resultMap type="question" id="questionResult">
+		<id property="qsNumber" column="QS_NUMBER"/>
+		<result property="qsTitle" column="QS_TITLE" />
+		<result property="qsContent" column="QS_CONTENT" />
+		<result property="qsWriterMemberCode" column="QS_WRITER_MEMBER_CODE" />
+		<result property="qsRegdate" column="QS_REGDATE" />
+		<result property="qsModifiedDate" column="QS_MODIFIED_DATE" />
+		<result property="qsAnswerYn" column="QS_ANSWER_YN" />
+		<result property="qstWriterName" column="QST_WRITER_NAME" />
+		<result property="connectedCenterName1" column="CONNECTED_CENTER_NAME1" />
+		<result property="connectedCenterName2" column="CONNECTED_CENTER_NAME2" />
+		<result property="connectedCenterName3" column="CONNECTED_CENTER_NAME3" />
+		<result property="centerCode" column="CENTER_CODE" />
+	</resultMap>
+	
+	<resultMap type="questionReply" id="questionReplyResult">
+		<id property="reNumber" column="RE_NUMBER"/>
+		<result property="reTitle" column="RE_TITLE" />
+		<result property="reContent" column="RE_CONTENT" />
+		<result property="writerRoleCode" column="WRITER_ROLE_CODE" />
+		<result property="writerMemberCode" column="WRITER_MEMBER_CODE" />
+		<result property="reRegdate" column="RE_REGDATE" />
+		<result property="reTargetPostType" column="RE_TARGET_POST_TYPE" />
+		<result property="reTargetPostNumber" column="RE_TARGET_POST_NUMBER" />
+	</resultMap>
+
+	<resultMap type="com.dev.pilafix.common.member.CenterVO" id="connectedCenter">
+		<result property="ctName" column="CT_NAME" />
+		<result property="ctCode" column="CT_CODE" />
+	</resultMap>
+	
+	
+	
+<!-- 회원의 문의사항 리스트 + 답변 리스트
+<select id ="getQuestionAndCenterReply" parameterType type="int" resultMap="">
+SELECT q.*, r.*
+FROM TBL_QUESTION q
+LEFT JOIN TBL_REPLY r ON q.QS_NUMBER = r.RE_TARGET_POST_NUMBER
+WHERE q.CS_MEMBER_CODE = #{csMemberCode}
+</select> -->
+
+<!-- 알림발송 위한 해당 문의사항의 작성자 회원코드 가져오기 -->
+<select id="getQuestionWriterMemberCode" parameterType="int" resultType="int">
+    SELECT QS_WRITER_MEMBER_CODE FROM TBL_QUESTION
+    WHERE QS_NUMBER = #{qsNumber}
+</select>
+
+
+	<!-- 회원의 문의사항 작성 시 선택하는 센터 이름 조회 -->
+	<select id="getConnectedCenters" resultMap="connectedCenter" parameterType="int">
+		SELECT CT_NAME,CT_CODE
+		FROM TBL_CENTER
+		WHERE CT_CODE IN (
+	    		SELECT CONNECTED_CENTER_CODE1 FROM TBL_CST WHERE CS_MEMBER_CODE = #{csMemberCode}
+	  		    UNION
+	    		SELECT CONNECTED_CENTER_CODE2 FROM TBL_CST WHERE CS_MEMBER_CODE = #{csMemberCode}
+	    		UNION SELECT CONNECTED_CENTER_CODE3 FROM TBL_CST WHERE CS_MEMBER_CODE = #{csMemberCode}
+				)
+	</select>
+
+
+	<!-- 로그인한 회원의 연동된 센터 이름 가져오기? 
+	<select id="getConnectedCenters" resultType="com.dev.pilafix.common.member.CenterVO">
+		SELECT C.CT_NAME
+	    FROM TBL_CENTER C
+	    INNER JOIN TBL_CST M ON C.CT_CODE IN (M.CONNECTED_CENTER_CODE1, M.CONNECTED_CENTER_CODE2, M.CONNECTED_CENTER_CODE3)
+	    WHERE M.CS_MEMBER_CODE = #{csMemberCode}`
+	</select>-->
+
+
+	<!-- [회원] 회원코드로 가져오는 문의사항 리스트 -->
+	<select id="getQuestionListByMember" parameterType="int" resultMap="questionResult">
+	    SELECT * FROM TBL_QUESTION
+	    WHERE QS_WRITER_MEMBER_CODE = #{csMemberCode}
+	    ORDER BY QS_REGDATE DESC
+	</select>
+
+
+<!-- [회원] 문의사항 정보와 선택한 센터 이름을 가져오는 쿼리 -->
+<select id="getQuestionWithSelectedCenterName" resultMap="questionResult">
+SELECT
+    Q.*,
+    M.CS_NAME AS QST_WRITER_NAME,
+    C.CT_NAME AS SELECTED_CENTER_NAME
+FROM
+    TBL_QUESTION Q
+    INNER JOIN TBL_CST M ON Q.QS_WRITER_MEMBER_CODE = M.CS_MEMBER_CODE
+    INNER JOIN TBL_CENTER C ON Q.CENTER_CODE = C.CT_CODE
+WHERE
+    Q.QS_WRITER_MEMBER_CODE = #{csMemberCode}
+</select>
+
+
+
+<!-- 회원의 특정 문의사항에 대한 답변을 조회하는 쿼리 -->
+<select id="getReplyForQuestion" parameterType="int" resultMap="questionReplyResult">
+    SELECT * FROM TBL_REPLY
+    WHERE RE_TARGET_POST_NUMBER = #{qsNumber}
+</select>
+
+	
+
+
+		
+	<!-- [회원] 자신이 작성한 문의사항의 리스트 QS_WRITER_MEMBER_CODE = #{csMemberCode}-->
+	<select id="getQuestionsByMemberCode" parameterType="Integer" resultMap="questionResult">
+	    SELECT * FROM TBL_QUESTION
+	    WHERE QS_WRITER_MEMBER_CODE = #{csMemberCode}
+	    ORDER BY QS_REGDATE DESC
+	</select>
+	
+<!-- [회원] 문의사항 등록 -->
+<insert id="insertQuestion" parameterType="question">
+	INSERT INTO	TBL_QUESTION
+	VALUES(nextval('seq_question'), #{qsTitle}, #{qsContent},#{qsWriterMemberCode}, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP,false, #{selectedCenterCode})
+</insert>
+	
+	<!-- [회원] 문의사항 상세 조회 -->
+	<select id="getQuestion" resultMap="questionResult" >
+		SELECT * FROM TBL_QUESTION WHERE QS_NUMBER=#{qsNumber}
+	</select>
+	
+	<!-- [회원] 문의사항 수정 -->
+	<update id="updateQuestion" parameterType="question">
+		UPDATE TBL_QUESTION SET QS_TITLE=#{qsTitle}, QS_CONTENT=#{qsContent}, QS_MODIFIED_DATE = CURRENT_TIMESTAMP WHERE QS_NUMBER=#{qsNumber}
+	</update>
+	
+	<!-- [회원] 문의사항 삭제 -->
+	<delete id="deleteQuestion"  parameterType="Integer">
+		DELETE FROM TBL_QUESTION WHERE QS_NUMBER=#{qsNumber}
+	</delete>
+	
+
+<!-- [센터] 문의사항 목록 조회 -->
+<!-- 아래코드 getQuestionListWithWriterNames와 동일해서 쓰인 곳 수정하고 삭제할예정 
+<select id="getQuestionList" parameterType="int" resultMap="questionResult">
+    SELECT Q.*, M.CS_NAME AS QST_WRITER_NAME
+    FROM TBL_QUESTION Q
+    INNER JOIN TBL_CST M ON Q.QS_WRITER_MEMBER_CODE = M.CS_MEMBER_CODE
+    WHERE Q.CENTER_CODE = #{ctCode}
+    ORDER BY Q.QS_REGDATE DESC
+</select> -->
+
+<!-- [센터] 센터와 연동된 회원들의 문의사항 목록과 작성자 이름을 가져오는 쿼리 -->
+<!-- WHERE Q.CENTER_CODE = #{ctCode}  -->
+<select id="getQuestionListWithWriterNames" resultMap="questionResult">
+    SELECT Q.*, M.CS_NAME AS QST_WRITER_NAME
+    FROM TBL_QUESTION Q
+    INNER JOIN TBL_CST M ON Q.QS_WRITER_MEMBER_CODE = M.CS_MEMBER_CODE
+    WHERE Q.CENTER_CODE = #{ctCode}
+    ORDER BY Q.QS_REGDATE DESC;
+</select>	
+	
+	
+<!-- [센터] 문의사항 상세 조회 -->
+<select id="getQuestionCenterWithNames" resultMap="questionResult" >
+	SELECT Q.*, M.CS_NAME AS QST_WRITER_NAME
+    FROM TBL_QUESTION Q
+    INNER JOIN TBL_CST M ON Q.QS_WRITER_MEMBER_CODE = M.CS_MEMBER_CODE
+    WHERE Q.QS_NUMBER = #{qsNumber}
+</select>
+ <!--  SELECT Q.*, M.CS_NAME AS QST_WRITER_NAME, C.CT_NAME AS QS_CENTER_NAME
+   FROM TBL_QUESTION Q
+   INNER JOIN TBL_CST M ON Q.QS_WRITER_MEMBER_CODE = M.CS_MEMBER_CODE
+   INNER JOIN TBL_CENTER C ON Q.CENTER_CODE = C.CT_CODE
+   WHERE Q.QS_NUMBER = #{qsNumber} AND C.CT_CODE = #{ctCode}
+  -->   
+		
+		
+<!-- [센터] 문의사항 전체 건수 -->
+<select id="getTotalQuestionCount" resultType="int">
+    SELECT COUNT(*) 
+    FROM TBL_QUESTION Q
+    WHERE Q.CENTER_CODE = #{ctCode}
+</select>
+<!-- [센터] 하나의 상세 문의사항에 대한 답변 조회 -->
+<select id="getQReply" resultMap="questionReplyResult" >
+	SELECT * FROM TBL_REPLY WHERE RE_TARGET_POST_NUMBER=#{reTargetPostNumber}
+</select>	
+	
+	
+	<!-- 답변 등록 reTargetPostNumber == qsNumber, writerMemberCode == 센터로그인세션의 ctCode -->
+	<insert id="insertQReply" parameterType="questionReply">
+	    INSERT INTO TBL_REPLY
+	    (RE_NUMBER, RE_TITLE, RE_CONTENT, WRITER_ROLE_CODE, WRITER_MEMBER_CODE, RE_REGDATE, RE_TARGET_POST_TYPE, RE_TARGET_POST_NUMBER)
+	    VALUES(nextval('seq_reply'), #{reTitle}, #{reContent}, 'CE', #{writerMemberCode}, CURRENT_TIMESTAMP, 'QST', #{reTargetPostNumber})
+	</insert>
+	
+	<!-- 답변 등록 시 원글의 답변여부 true -->
+	<update id="updateQAnswerYnToTrue" parameterType="question">
+		UPDATE TBL_QUESTION SET QS_ANSWER_YN = true WHERE QS_NUMBER = #{qsNumber}	
+	</update>
+	
+	<!-- 답변 삭제 시 원글의 답변여부 false -->
+	<update id="updateQAnswerYnToFalse" parameterType="question">	
+    	UPDATE TBL_QUESTION SET QS_ANSWER_YN = false WHERE QS_NUMBER = #{qsNumber}
+	</update>
+	
+
+	<!-- 답변삭제 -->
+	<delete id="deleteQuestionReply" >
+		DELETE FROM TBL_REPLY WHERE RE_NUMBER=#{reNumber}
+	</delete>
+	
+
+	<!-- [회원] 등록한 문의사항 목록에 해당하는 답변 목록
+		어떻게 조회해야할지 WRITER_MEMBER_CODE = QS_WRITER_MEMBER_CODE, RE_TARGET_POST_NUMBER=#{qsNumber}
+	<select id="getQReplyList" parameterType="Integer" resultMap="questionReplyResult">
+		SELECT * FROM TBL_REPLY WHERE RE_TARGET_POST_TYPE='QST' AND WRITER_MEMBER_CODE=#{writerMemberCode}
+	</select>
+	-->
+	
+	<!-- [회원] 등록한 문의사항 목록에 해당하는 답변 목록 
+	<select id="getQReplyList" parameterType="Integer" resultMap="questionReplyResult">
+		SELECT * FROM TBL_REPLY WHERE RE_TARGET_POST_TYPE='QST' AND RE_TARGET_POST_NUMBER=#{qsNumber}
+	</select>-->	
+
+	<!-- 문의사항 작성한 회원의 이름 가져오기? 로그인세션 후 추가 WHERE Q.QS_NUMBER = #{qsNumber}
+	<select id="getMemberNameByQuestionId" parameterType="int" resultType="string">
+	    SELECT M.CS_NAME
+	    FROM TBL_CST M
+	    JOIN TBL_QUESTION Q ON M.CS_MEMBER_CODE = Q.QS_WRITER_MEMBER_CODE
+	</select> -->
+		
+	
+
+</mapper>

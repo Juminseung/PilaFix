@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="ComplaintsDAO">
+	<resultMap type="complaintsInfo" id="ComplaintsResult">
+		<id property="cpCode" column="CP_CODE"/>
+		<result property="cpTargetPostNumber" column="CP_TARGET_POST_NUMBER" />
+		<result property="cpTargetPostType" column="CP_TARGET_POST_TYPE" />
+		<result property="targetWriterMemberCode" column="TARGET_WRITER_MEMBER_CODE" />
+		<result property="blamerMemberCode" column="BLAMER_MEMBER_CODE" />
+		<result property="blamerMemberName" column="BLAMER_MEMBER_NAME" />
+		<result property="blamerMemberEmail" column="BLAMER_MEMBER_EMAIL" />
+		<result property="cpDate" column="CP_DATE" />
+		<result property="blamerIp" column="BLAMER_IP" />
+		<result property="cmTitle" column="CM_TITLE" />
+		<result property="cmContent" column="CM_CONTENT" />
+		<result property="blameReasonCode" column="BLAME_REASON_CODE" />
+		<result property="blameReasonName" column="BLAME_REASON_NAME" />
+		<result property="cmBlameCount" column="CM_BLAME_COUNT" />
+		<result property="cmOpenYn" column="CM_OPEN_YN" />
+	</resultMap>
+	
+	<resultMap type="community" id="communityResult">
+		<id property="cmNumber" column="CM_NUMBER"></id>
+		<result property="cmTitle" column="CM_TITLE"/>
+		<result property="cmContent" column="CM_CONTENT"/>
+		<result property="cmWriterMemberCode" column="CM_WRITER_MEMBER_CODE"/>
+		<result property="csName" column="CS_NAME"/>
+		<result property="cmRegdate" column="CM_REGDATE"/>
+		<result property="cmOpenYn" column="CM_OPEN_YN"/>
+		<result property="cmBlameCount" column="CM_BLAME_COUNT"/>
+	</resultMap>	
+	
+
+	<!-- 신고글 리스트  -->
+	<select id="getTargetComplaintsList" resultMap="communityResult" >
+		SELECT * FROM TBL_COMMUNITY 
+		WHERE CM_BLAME_COUNT > 0
+		ORDER BY CM_NUMBER DESC;
+	</select>
+	
+	<!-- 신고글 상세 - 대상 글 상세 -->
+	<select id="getComplaintsDetail" resultMap="communityResult">
+		SELECT * 
+		FROM TBL_COMMUNITY
+		WHERE CM_NUMBER=${cmNumber}
+	</select>
+	
+	<!-- 신고글 상세 - 신고내역  -->
+	<select id="getComplaintsList" resultMap="ComplaintsResult">
+		SELECT CP_CODE, 
+			(SELECT CS_NAME FROM TBL_CST WHERE CS_MEMBER_CODE=BLAMER_MEMBER_CODE) AS BLAMER_MEMBER_NAME,
+			(SELECT CS_EMAIL_ID FROM TBL_CST WHERE CS_MEMBER_CODE=BLAMER_MEMBER_CODE) AS BLAMER_MEMBER_EMAIL,
+			(SELECT BLAME_REASON_NAME FROM TBL_COMPLAINTS_REASON WHERE BLAME_REASON_CODE=COM.BLAME_REASON_CODE)AS BLAME_REASON_NAME
+		FROM TBL_COMPLAINTS COM
+		WHERE CP_TARGET_POST_NUMBER=${cmNumber}
+	</select>
+	
+	<!-- 신고글 처리 시 커뮤니티 비공개 상태로 변경  -->
+	<update id="updateComplaintsStatus" parameterType="Integer">
+		UPDATE TBL_COMMUNITY 
+		set CM_OPEN_YN=false
+		WHERE CM_NUMBER=#{cmNumber}
+	</update>
+	
+	
+	<!--  -->
+	<!-- 툴팁으로 뜨는 사유 가져오는 리스트인 것 같음 
+	<select id="getBlameReasonsByCount" resultMap="ComplaintsInfoResult" >
+		SELECT
+            A.TARGET_WRITER_MEMBER_CODE,
+            A.CP_TARGET_POST_NUMBER,
+            D.CS_NAME,
+            D.CS_EMAIL_ID,
+            C.BLAME_REASON_NAME,
+            A.TARGET_WRITER_MEMBER_CODE,
+            A.CP_OPEN_YN,
+            A.CP_CODE
+        FROM
+            TBL_COMPLAINTS AS A
+            INNER JOIN TBL_COMMUNITY AS B ON A.CP_TARGET_POST_NUMBER = B.CM_NUMBER
+            INNER JOIN TBL_CST AS D ON A.TARGET_WRITER_MEMBER_CODE = D.CS_MEMBER_CODE
+            INNER JOIN TBL_COMPLAINTS_REASON AS C ON A.BLAME_REASON_CODE = C.BLAME_REASON_CODE
+        WHERE
+            A.CP_TARGET_POST_NUMBER = #{cmBlameCount}
+        ORDER BY
+            A.TARGET_WRITER_MEMBER_CODE,
+            A.CP_CODE DESC
+    </select>
+	
+	 -->
+	
+	
+</mapper>

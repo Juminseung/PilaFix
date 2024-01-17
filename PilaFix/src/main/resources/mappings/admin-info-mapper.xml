@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="AdminInfoDAO">
+	<resultMap type="adminInfo" id="adminInfoResult">
+		<id property="iwNumber" column="IW_NUMBER"/>
+		<result property="title" column="IW_TITLE" />
+		<result property="content" column="IW_CONTENT" />
+		<result property="writerMemberCode" column="IW_WRITER_MEMBER_CODE" />
+		<result property="writerMemberName" column="AD_NAME" />
+		<result property="regDate" column="IW_REGDATE" />
+		<result property="cnt" column="IW_VIEWS" />
+		<result property="openYN" column="IW_OPEN_YN" />
+	</resultMap>
+	<select id="getAdminInfoList" resultMap="adminInfoResult" parameterType="adminInfo">
+		SELECT IW_NUMBER, IW_TITLE, IW_CONTENT,IW_REGDATE,IW_VIEWS, IW_OPEN_YN, IW_WRITER_MEMBER_CODE, 
+			(SELECT AD_NAME FROM TBL_ADMIN WHERE AD_CODE=IW_WRITER_MEMBER_CODE) as AD_NAME 
+		FROM TBL_INFO_W
+	</select>
+	<select id="getAdminInfo" resultMap="adminInfoResult" parameterType="adminInfo">
+		SELECT IW_NUMBER, IW_TITLE, IW_CONTENT, IW_REGDATE, IW_VIEWS, IW_OPEN_YN, 
+			(SELECT AD_NAME FROM TBL_ADMIN WHERE AD_CODE=IW_WRITER_MEMBER_CODE) as AD_NAME 
+		FROM TBL_INFO_W 
+		WHERE IW_NUMBER = ${iwNumber}
+	</select>
+	
+	<!-- 공지사항 등록 및 등록된 시퀀스 가져오기 위함 -->
+	<insert id="insertAdminInfo" parameterType="adminInfo" useGeneratedKeys="true" keyProperty="iwNumber">
+	    <!-- MyBatis에서 생성된 키를 받아오기 위한 selectKey 설정 -->
+	    <selectKey keyProperty="iwNumber" order="AFTER" resultType="int">
+	        <!-- RETURNING 절을 사용하여 삽입된 행의 IC_NUMBER 값을 반환 -->
+	        INSERT INTO TBL_INFO_W(IW_NUMBER, IW_TITLE, IW_CONTENT, IW_WRITER_MEMBER_CODE, IW_REGDATE,IW_OPEN_YN) 
+			VALUES(nextval('seq_admin_info'), #{title}, #{content}, #{writerMemberCode}, CURRENT_TIMESTAMP, #{openYN})
+			RETURNING IW_NUMBER
+	    </selectKey>
+	</insert>
+	
+	<update id="updateAdminInfo" parameterType="adminInfo">
+		UPDATE TBL_INFO_W SET IW_TITLE=#{title}, IW_CONTENT=#{content}, IW_OPEN_YN=#{openYN} WHERE IW_NUMBER=#{iwNumber}
+	</update>
+	<delete id="deleteAdminInfo" parameterType="Integer">
+		DELETE FROM TBL_INFO_W WHERE IW_NUMBER = #{iwNumber}
+	</delete>
+	
+</mapper>

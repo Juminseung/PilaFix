@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="FaqInfoDAO">
+	<resultMap type="faqInfo" id="faqInfoResult">
+		<id property="fqNumber" column="FQ_NUMBER"/>
+		<result property="fqTitle" column="FQ_TITLE" />
+		<result property="fqContent" column="FQ_CONTENT" />
+		<result property="fqWriterMemberCode" column="FQ_WRITER_MEMBER_CODE" />
+		<result property="fqRegDate" column="FQ_REGDATE" />
+		<result property="fqOpenYn" column="FQ_OPEN_YN" />
+		<result property="fqType" column="FQ_TYPE" />
+	</resultMap>
+	
+	<select id="getFaqInfoList" resultMap="faqInfoResult">
+		SELECT * 
+		FROM TBL_FAQ
+		ORDER BY FQ_NUMBER DESC
+	</select>
+	
+	<select id="getFaqInfo" resultMap="faqInfoResult">
+		SELECT * FROM TBL_FAQ WHERE FQ_NUMBER = #{fqNumber}
+	</select>
+	
+	<insert id="insertFaqInfo" parameterType="faqInfo">
+		INSERT INTO TBL_FAQ(FQ_NUMBER, FQ_TITLE, FQ_CONTENT, FQ_WRITER_MEMBER_CODE, FQ_REGDATE, FQ_OPEN_YN, FQ_TYPE)
+		VALUES(nextval('seq_faq'), #{fqTitle}, #{fqContent}, #{fqWriterMemberCode}, CURRENT_TIMESTAMP, true , #{fqType})
+	</insert>
+	
+	<update id="updateFaqInfo" parameterType="faqInfo">
+		UPDATE TBL_FAQ 
+		SET FQ_TITLE=#{fqTitle}, FQ_CONTENT=#{fqContent} 
+		WHERE FQ_NUMBER=#{fqNumber}
+	</update>
+	
+	<delete id="deleteFaqInfo" parameterType="Integer">
+		DELETE FROM TBL_FAQ 
+		WHERE FQ_NUMBER = #{fqNumber}
+	</delete>
+
+</mapper>

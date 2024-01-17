@@ -1,0 +1,214 @@
+@charset "UTF-8";
+@import url('https://cdn.rawgit.com/moonspam/NanumSquare/master/nanumsquare.css');
+
+/* 노말라이즈 시작 */
+body, ul, li {
+  margin:0;
+  padding:0;
+  list-style:none;
+}
+
+a {
+  color:inherit;
+  text-decoration:none;
+}
+
+hr {
+    background: #712fab;
+    height:1px;
+    border:0;
+}
+/* 노말라이즈 끝 */
+
+/* 라이브러리 시작 */
+
+/*영역설정*/
+.container000 {
+	display: flex;
+	flex-direction: column;
+	min-height: 100vh;
+}
+
+.container000>.content000 {
+	display: flex;
+	flex-direction: row;
+	flex-grow: 1;
+}
+
+.container000>.content000>area1 {
+	background-color: #fff;
+	flex-basis: 300px;
+	flex-shrink: 0;
+}
+
+.container000>.content000>main {
+	background-color: white;
+	flex-grow: 1;
+	flex-shrink: 1;
+}
+
+.container000>.content000>area2 {
+	background-color: #fff;
+	flex-basis: 300px;
+	flex-shrink: 0;
+}
+/* 라이브러리 끝 */
+
+.v-line {
+  display: inline-block;
+  border-left: thick solid #712fab;
+  height: 100px;
+  width: 5px;
+  margin: 5%;
+  position: absolute;
+  bottom: 750px;
+  left: 16.5%;
+}
+
+/* 라디오 박스 */
+.wrapper-1 {
+   padding: 30px;
+}
+
+.wrapper-1 > .btn {
+	height: 70px;
+	width: 180px;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+}
+
+.wrapper-1 > .btn:active {
+	color: #fff;	
+}
+/* 라디오 끝 */
+
+/* 검색창 */
+
+.search_menu {
+  border: 2px solid #712fab;
+  width: 70%;
+  display: block;
+  border-radius:20px;
+  margin-left:auto;
+  margin-right:auto;
+}
+
+.search_menu > div {
+  display: flex;
+  justify-content: center;
+  
+}
+
+.search_menu > div:nth-child(3) {
+  margin-bottom: 15px;
+  margin-right: 72px;
+}
+
+.search_menu > div:first-child > div {
+  margin: 0 auto;
+  width: 30%;
+  margin-bottom: 20px;
+}
+
+.search_menu > .search > div > p {
+	position: relative;
+	top: 18px;
+}
+
+
+/* 검색창 끝*/
+
+
+
+.search-filter {
+    background-color: #f8f9fa;
+    padding: 10px;
+    border-radius: 5px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    padding-left: 150px;
+}
+
+
+.search-filter input,
+.search-filter select,
+.search-filter button {
+    margin-bottom: 10px;
+}
+
+
+.table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+
+
+.table th {
+    background-color: #f1f3f4; /* Purple color */
+    color: #333;
+    padding: 10px;
+    text-align: center;
+}
+
+/* Style for the table rows */
+.table td,
+.table th {
+    border-bottom: 1px solid #ddd;
+    padding: 8px;
+    text-align: center;
+}
+
+/* Style for the alternate row color */
+.table tbody tr:nth-child(even) {
+    background-color: #f2f2f2;
+}
+
+/* Style for the caption above each table */
+.table caption {
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+
+/* Style for the message when no data is available */
+.table tbody tr.no-data td {
+    text-align: center;
+    font-style: italic;
+    color: #666;
+}
+
+/* Style for the container */
+.container {
+    margin: 0 auto;
+}
+
+/* Style for the page title */
+.text-center h2 {
+    color: #6b16f2; /* Purple color */
+}
+
+
+@media (max-width: 767px) {
+    .table thead {
+        display: none;
+    }
+
+    .table tbody,
+    .table tr,
+    .table td {
+        display: block;
+        width: 100%;
+        box-sizing: border-box;
+    }
+
+    .table td {
+        text-align: left;
+        padding: 10px;
+    }
+
+    /* Style for the caption in mobile view */
+    .table caption {
+        text-align: left;
+    }
+}
+

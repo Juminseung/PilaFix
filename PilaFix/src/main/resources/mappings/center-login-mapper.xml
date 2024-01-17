@@ -1,0 +1,171 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+
+<mapper namespace="CenterLoginDAO">
+	<resultMap type="center" id="centerloginResult">
+		<id property="ctCode" column="CT_CODE"/>
+		<result property="ctName" column="CT_NAME" />
+		<result property="ctPhoneNumber1" column="CT_PHONE_NUMBER1" />
+		<result property="ctPhoneNumber2" column="CT_PHONE_NUMBER2" />
+		<result property="ctPhoneNumber3" column="CT_PHONE_NUMBER3" />
+		<result property="ctAddress1" column="CT_ADDRESS1" />
+		<result property="ctAddress2" column="CT_ADDRESS2" />
+		<result property="ctAddress3" column="CT_ADDRESS3" />
+		<result property="ownerName" column="OWNER_NAME" />
+		<result property="businessRegistrationNumber" column="BUSINESS_REGISTRATION_NUMBER" />
+		<result property="ownerPhoneNumber1" column="OWNER_PHONE_NUMBER1" />
+		<result property="ownerPhoneNumber2" column="OWNER_PHONE_NUMBER2" />
+		<result property="ownerPhoneNumber3" column="OWNER_PHONE_NUMBER3" />
+		<result property="ownerEmail" column="OWNER_EMAIL" />
+		<result property="contractStartDate" column="CONTRACT_START_DATE" />
+		<result property="contractEndDate" column="CONTRACT_END_DATE" />
+		<result property="contractExpiryYn" column="CONTRACT_EXPIRY_YN" />
+		<result property="contractRevokeYn" column="CONTRACT_REVOKE_YN" />
+		<result property="ctRegistrationDate" column="CT_REGISTRATION_DATE" />
+		<result property="ctId" column="CT_ID" />
+		<result property="ctPassword" column="CT_PASSWORD" />
+		<result property="roleCode" column="ROLE_CODE" />
+		<result property="memberCount" column="MEMBER_REQUEST_COUNT" />
+		<result property="trainerCount" column="TRAINER_REQUEST_COUNT" />
+		<result property="questionCount" column="UNANSWERED_QUESTION_COUNT" />
+		
+		<result property="paymentCount" column="PAYMENT_COUNT" />
+		<result property="amountCount" column="AMOUNT_COUNT" />
+		<result property="centerMemberCount" column="CENTRER_MEMBER_COUNT" />
+		<result property="lsName" column="LS_NAME" />
+		
+		<result property="category" column="CATEGOTY" />
+		<result property="totalCount" column="TOTAL_COUNT" />
+		
+	</resultMap>
+	
+
+
+	<!-- 로그인 하기 위해 이메일로 비밀번호 가져오기 -->
+	<select id="getPasswordByCtId" resultType="java.lang.String">
+	    SELECT CT_PASSWORD FROM TBL_CENTER WHERE CT_ID=#{ctId}
+	</select>
+	
+	<!-- 센터 필요한 기본 정보 조회 -->
+	<select id="getLoginCenterCodeName" resultMap="centerloginResult">
+	    SELECT CT_CODE, CT_NAME
+	    FROM TBL_CENTER 
+	    WHERE CT_ID=#{ctId}
+	</select>
+	
+	<!-- 센터코드로 전체 정보 가져오기 -->
+	<select id="getCenterAllInfoByCode" resultMap="centerloginResult">
+		SELECT * FROM TBL_CENTER WHERE CT_CODE = #{ctCode}
+	</select>
+	
+	<!-- 센터아이디로 전체정보 가져오기  -->
+	<select id="getCenterAllInfoById" resultMap="centerloginResult">
+		SELECT * FROM TBL_CENTER WHERE CT_ID=#{ctId}
+	</select>
+	
+	<!-- 비밀번호 변경 -->
+	<update id="updatePasswordCenter">
+        UPDATE TBL_CENTER SET CT_PASSWORD = #{newPassword} WHERE CT_CODE = #{ctCode}
+    </update>
+    
+    <!-- 연동요청 온 회원&강사 수/답변 안달린 문의사항 수 세옴(연동거절 안되어있으면서 연동여부가 false인 회원 가져옴) -->
+	<select id="countForBadge" resultMap="centerloginResult">
+		SELECT
+		    (SELECT COUNT(*) FROM tbl_center_request 
+		        WHERE member_code BETWEEN 2000 AND 8000
+		        AND center_code = #{ctCode}
+		        AND cr_reject_date IS NULL
+		        AND cr_connection_yn = 'f') AS MEMBER_REQUEST_COUNT,
+        
+		    (SELECT COUNT(*) FROM tbl_center_request 
+		        WHERE member_code >= 8000
+		        AND center_code = #{ctCode}
+		        AND cr_reject_date IS NULL
+		        AND cr_connection_yn = 'f') AS TRAINER_REQUEST_COUNT,
+		        
+		    (SELECT COUNT(*) FROM tbl_question
+		        WHERE center_code = #{ctCode}
+		        AND qs_answer_yn = 'f') AS UNANSWERED_QUESTION_COUNT;
+	</select>
+	
+	<!-- 판매횟수 -->
+	<select id="getTotalCenterCount" resultMap="centerloginResult">
+	SELECT
+	(SELECT COUNT(PA_ID) 
+		FROM TBL_PAYMENT JOIN TBL_TICKET ON (TBL_PAYMENT.TICKET_CODE = TBL_TICKET.TK_CODE)
+		WHERE TBL_TICKET.CENTER_CODE = #{ctCode} ) AS PAYMENT_COUNT,
+		(SELECT TO_CHAR(SUM(PA_AMOUNT), '999,999,999')
+		FROM TBL_PAYMENT JOIN TBL_TICKET ON (TBL_PAYMENT.TICKET_CODE = TBL_TICKET.TK_CODE)
+		WHERE TBL_TICKET.CENTER_CODE = #{ctCode}) AS AMOUNT_COUNT,
+		(SELECT COUNT(*) 
+		FROM TBL_CST
+		WHERE CONNECTED_CENTER_CODE1 = #{ctCode} OR CONNECTED_CENTER_CODE2 = #{ctCode} OR CONNECTED_CENTER_CODE3 = #{ctCode}
+		AND CS_ROLE_CODE = 'ME') AS CENTRER_MEMBER_COUNT
+	</select>
+	
+	<select id="monthlyAmount" resultType="int">
+		SELECT COALESCE(SUM(p.PA_AMOUNT), 0) AS contract_count
+		FROM generate_series(1, 12) m(month)
+		LEFT JOIN (
+		    SELECT 
+		        DATE_TRUNC('month', p.PA_DATETIME) AS month,
+		        p.PA_AMOUNT,
+		        t.CENTER_CODE
+		    FROM TBL_PAYMENT p
+		    LEFT JOIN TBL_TICKET t ON p.TICKET_CODE = t.TK_CODE
+		    WHERE t.CENTER_CODE = #{ctCode}
+		) AS p ON EXTRACT(MONTH FROM COALESCE(p.month, CURRENT_DATE)) = m.month
+		    AND EXTRACT(YEAR FROM COALESCE(p.month, CURRENT_DATE)) = EXTRACT(YEAR FROM CURRENT_DATE)
+		LEFT JOIN TBL_CENTER c ON p.CENTER_CODE = c.CT_CODE
+		GROUP BY m.month
+		ORDER BY m.month;
+	</select>
+	
+	<select id="getPopularLesson" resultMap="centerloginResult">
+		SELECT Category, SUM(Count) AS TOTAL_COUNT
+		FROM (
+		    SELECT '다이어트' AS Category,
+		        SUM(CASE WHEN LS_NAME LIKE '%다이어트%' THEN 1 ELSE 0 END) AS Count
+		    FROM TBL_LESSON 
+		    JOIN TBL_RESERV ON TBL_RESERV.Lesson_CODE = TBL_LESSON.LS_CODE
+		    WHERE TBL_RESERV.CENTER_CODE = #{ctCode} AND TBL_RESERV.RS_CODE IS NOT NULL
+		
+		    UNION ALL
+		
+		    SELECT '체형교정' AS Category,
+		        SUM(CASE WHEN LS_NAME LIKE '%체형교정%' THEN 1 ELSE 0 END) AS Count
+		    FROM TBL_LESSON 
+		    JOIN TBL_RESERV ON TBL_RESERV.Lesson_CODE = TBL_LESSON.LS_CODE
+		    WHERE TBL_RESERV.CENTER_CODE = #{ctCode} AND TBL_RESERV.RS_CODE IS NOT NULL
+		
+		    UNION ALL
+		
+		    SELECT '스트레칭' AS Category,
+		        SUM(CASE WHEN LS_NAME LIKE '%스트레칭%' THEN 1 ELSE 0 END) AS Count
+		    FROM TBL_LESSON 
+		    JOIN TBL_RESERV ON TBL_RESERV.Lesson_CODE = TBL_LESSON.LS_CODE
+		    WHERE TBL_RESERV.CENTER_CODE = #{ctCode} AND TBL_RESERV.RS_CODE IS NOT NULL
+		
+		    UNION ALL
+		
+		    SELECT '밸런스' AS Category,
+		        SUM(CASE WHEN LS_NAME LIKE '%밸런스%' THEN 1 ELSE 0 END) AS Count
+		    FROM TBL_LESSON 
+		    JOIN TBL_RESERV ON TBL_RESERV.Lesson_CODE = TBL_LESSON.LS_CODE
+		    WHERE TBL_RESERV.CENTER_CODE = #{ctCode} AND TBL_RESERV.RS_CODE IS NOT NULL
+		
+		    UNION ALL
+		
+		    SELECT '재활' AS Category,
+		        SUM(CASE WHEN LS_NAME LIKE '%재활%' THEN 1 ELSE 0 END) AS Count
+		    FROM TBL_LESSON 
+		    JOIN TBL_RESERV ON TBL_RESERV.Lesson_CODE = TBL_LESSON.LS_CODE
+		    WHERE TBL_RESERV.CENTER_CODE = #{ctCode} AND TBL_RESERV.RS_CODE IS NOT NULL
+		) AS NAME_CATEGORY
+		GROUP BY CATEGORY;
+	</select>
+	
+	
+</mapper>

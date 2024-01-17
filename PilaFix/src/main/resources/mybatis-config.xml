@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE configuration
+PUBLIC "-//mybatis.org//DTD Config 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-config.dtd">
+<configuration>
+	<settings> <!-- 로그 출력 -->
+		<setting name="logImpl" value="STDOUT_LOGGING" />
+	</settings>
+	<typeAliases>
+		<typeAlias type="com.dev.pilafix.center.userguide.UserguideVO" alias="userguide" />
+		<typeAlias type="com.dev.pilafix.admin.info.AdminInfoVO" alias="adminInfo" />
+		<typeAlias type="com.dev.pilafix.center.info.CenterInfoVO" alias="centerInfo" />
+		<typeAlias type="com.dev.pilafix.admin.community.CommunityVO" alias="community" />
+		<typeAlias type="com.dev.pilafix.member.community.MemberCommunityVO" alias="memberCommunity" />
+		<typeAlias type="com.dev.pilafix.admin.terms.TermsVO" alias="terms" />
+		<typeAlias type="com.dev.pilafix.admin.center_manage.SendEmailHistoryVO" alias="emailHistory" />
+		<typeAlias type="com.dev.pilafix.common.member.MemberVO" alias="member" />
+		<typeAlias type="com.dev.pilafix.common.member.CenterVO" alias="center" />
+		<typeAlias type="com.dev.pilafix.common.member.AdminVO" alias="admin" />
+		<typeAlias type="com.dev.pilafix.common.question.QuestionVO" alias="question" />
+		<typeAlias type="com.dev.pilafix.common.question.QuestionReplyVO" alias="questionReply" />
+		<typeAlias type="com.dev.pilafix.admin.faq.FaqVO" alias="faqInfo" />
+		<typeAlias type="com.dev.pilafix.admin.complaints.ComplaintsVO" alias="complaintsInfo" />
+		<typeAlias type="com.dev.pilafix.admin.sendemailhistory.SendEmailHistoryVO" alias="sendEmailHistoryInfo" />
+		<typeAlias type="com.dev.pilafix.common.sendsmshistory.SendSmsHistoryVO" alias="sendSmsHistory" />
+   		<typeAlias type="com.dev.pilafix.center.lesson.CenterLessonVO" alias="centerLesson" />
+   		<typeAlias type="com.dev.pilafix.center.ticket.CenterTicketVO" alias="centerTicket" />
+		<typeAlias type="com.dev.pilafix.common.question.QuestionVO" alias="question" />
+		<typeAlias type="com.dev.pilafix.member.ConnectCt.ConnectCtVO" alias="ConnectCt" />
+		<typeAlias type="com.dev.pilafix.common.notice.NoticeVO" alias="notices" />
+        <typeAlias type="com.dev.pilafix.member.login_kakao.KakaoVO" alias="kakaologin" />
+        <typeAlias type="com.dev.pilafix.member.login_naver.NaverVO" alias="naverlogin" />
+        <typeAlias type="com.dev.pilafix.center.member_trainer_manage.ConnectRequestVO" alias="connectRequest" />
+        <typeAlias type="com.dev.pilafix.member.attend.AttendVO" alias="attend" />
+        <typeAlias type="com.dev.pilafix.member.ticket.MemberTicketVO" alias="memberTicket" />
+        <typeAlias type="com.dev.pilafix.member.schedule.MyScheduleVO" alias="mySchedule" />
+        <typeAlias type="com.dev.pilafix.member.schedule.CalenderVO" alias="calender" />
+        <typeAlias type="com.dev.pilafix.member.mypage.MemberMypageVO" alias="memberMypage" />
+	</typeAliases>
+	
+
+	<mappers>
+		<mapper resource="mappings/center-userguide-mapper.xml" />
+		<mapper resource="mappings/admin-info-mapper.xml" />
+		<mapper resource="mappings/center-info-mapper.xml" />
+		<mapper resource="mappings/admin-community-mapper.xml" />
+		<mapper resource="mappings/member-community-mapper.xml" />
+		<mapper resource="mappings/admin-centermanage-mapper.xml" />
+		<mapper resource="mappings/admin-terms-mapper.xml" />
+		<mapper resource="mappings/common-question-mapper.xml" />
+		<mapper resource="mappings/member-signup-mapper.xml" />
+		<mapper resource="mappings/admin-faq-mapper.xml" />
+		<mapper resource="mappings/admin-complaints-mapper.xml" />
+		<mapper resource="mappings/admin-sendemailhistory-mapper.xml" />
+		<mapper resource="mappings/common-sendsmshistory-mapper.xml" />
+		<mapper resource="mappings/common-membermanage-mapper.xml"/>
+		<mapper resource="mappings/center-lesson-mapper.xml" />
+		<mapper resource="mappings/center-ticket-mapper.xml" />
+		<mapper resource="mappings/member-login-mapper.xml" />
+		<mapper resource="mappings/member-connectct-mapper.xml" />
+		<mapper resource="mappings/center-login-mapper.xml" />
+		<mapper resource="mappings/member-kakaologin-mapper.xml" />
+		<mapper resource="mappings/admin-login-mapper.xml" />
+		<mapper resource="mappings/member-naverlogin-mapper.xml" />
+		<mapper resource="mappings/common-notice-mapper.xml" />
+		<mapper resource="mappings/member-ticket-mapper.xml" />
+		<mapper resource="mappings/member-reserve-mapper.xml" />
+		<mapper resource="mappings/member-attend-mapper.xml" />
+		<mapper resource="mappings/member-ticket-mapper.xml" />
+		<mapper resource="mappings/member-schedule-mapper.xml" />
+		<mapper resource="mappings/member-mypage-mapper.xml" />
+	</mappers>
+
+</configuration>

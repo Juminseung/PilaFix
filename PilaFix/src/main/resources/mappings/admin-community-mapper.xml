@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+ 
+<mapper namespace="CommunityDAO">
+	<resultMap type="community" id="communityResult">
+		<id property="cmNumber" column="CM_NUMBER"></id>
+		<result property="cmTitle" column="CM_TITLE"/>
+		<result property="cmContent" column="CM_CONTENT"/>
+		<result property="cmWriterMemberCode" column="CM_WRITER_MEMBER_CODE"/>
+		<result property="csName" column="CS_NAME"/>
+		<result property="cmRegdate" column="CM_REGDATE"/>
+		<result property="cmOpenYn" column="CM_OPEN_YN"/>
+	</resultMap>	
+		
+	<select id="getCommunityList" resultMap="communityResult" >
+		SELECT c.CM_NUMBER,c.CM_TITLE,c.CM_CONTENT,t.cs_name,TO_CHAR(C.CM_REGDATE, 'YYYY-MM-DD HH24:MI:SS') AS CM_REGDATE,c.CM_OPEN_YN
+		FROM tbl_community c
+		JOIN tbl_cst t
+		ON c.CM_WRITER_MEMBER_CODE = t.cs_member_code
+		ORDER BY CM_REGDATE DESC
+	</select>
+	<select id="getCommunity" resultMap="communityResult">
+		<!--
+		select cm_number,cm_title, cm_content, (select cs_name from tbl_cst where cs_member_code=#{cmWriterMemberCode}) as cs_name,cm_regdate
+		from tbl_community
+		where cm_writer_member_code=#{cmWriterMemberCode};
+
+		
+		SELECT * FROM TBL_COMMUNITY WHERE CM_NUMBER=#{cmNumber}
+		 
+		 SELECT c.CM_NUMBER,c.CM_TITLE,c.CM_CONTENT,c.CM_REGDATE,t.cs_name
+		 FROM tbl_community c
+		JOIN tbl_cst t
+		ON c.CM_WRITER_MEMBER_CODE = t.cs_member_code
+		WHERE c.CM_WRITER_MEMBER_CODE = #{cmWriterMemberCode};
+		-->
+		 SELECT CM_NUMBER,CM_TITLE,CM_CONTENT,TO_CHAR(CM_REGDATE, 'YYYY-MM-DD HH24:MI:SS') AS CM_REGDATE,CM_OPEN_YN
+		 FROM tbl_community
+		 WHERE CM_NUMBER = #{cmNumber};
+	</select>
+	
+	<update id="deleteCommunity" parameterType="Integer">
+		UPDATE tbl_community SET cm_open_yn='f' WHERE CM_NUMBER=#{cmNumber};
+	</update>
+	<update id="updateArticleOpen" parameterType="Integer">
+		UPDATE tbl_community SET cm_open_yn='t' WHERE CM_NUMBER=#{cmNumber};
+	</update>
+	
+	<!-- 
+		 case01 : 셀렉트박스선택하고 검색어 입력해서 검색
+		 case02 : 날짜만 입력해서 검색
+		 case03 : 셀렉트박스&검색어 ,날짜 모두 입력해서 검색
+		 각 case에 따라 where절 분기함
+	 -->
+	<select id="getFilteringData" resultMap="communityResult">
+		SELECT c.CM_NUMBER,c.CM_TITLE,c.CM_CONTENT,t.cs_name,TO_CHAR(C.CM_REGDATE, 'YYYY-MM-DD HH24:MI:SS') AS CM_REGDATE
+		FROM tbl_community c
+		JOIN tbl_cst t
+		ON c.CM_WRITER_MEMBER_CODE = t.cs_member_code
+			<if test="searchType != '' and searchKeyword != '' and startDate == '' and endDate == ''">
+	            WHERE ${searchType} LIKE '%'||#{searchKeyword}||'%'
+	        </if>
+	        <if test="searchType == null and searchKeyword == '' and startDate != '' and endDate != ''">
+	            WHERE c.CM_REGDATE BETWEEN TO_TIMESTAMP(#{startDate}, 'YYYY-MM-DD') AND (TO_TIMESTAMP(#{endDate}, 'YYYY-MM-DD') + INTERVAL '1 day')
+	        </if>
+	        <if test="searchType != '' and searchKeyword != '' and startDate != '' and endDate != ''">
+	            WHERE ${searchType} LIKE '%'||#{searchKeyword}||'%'
+			AND c.CM_REGDATE BETWEEN TO_TIMESTAMP(#{startDate}, 'YYYY-MM-DD') AND (TO_TIMESTAMP(#{endDate}, 'YYYY-MM-DD') + INTERVAL '1 day')
+	        </if>
+		ORDER BY CM_REGDATE DESC
+	</select>
+	
+</mapper>
+ 

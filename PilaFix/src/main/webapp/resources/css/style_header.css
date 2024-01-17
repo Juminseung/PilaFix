@@ -1,0 +1,60 @@
+@charset "UTF-8";
+
+@import
+	url('https://cdn.rawgit.com/moonspam/NanumSquare/master/nanumsquare.css')
+	;
+
+#navbar {
+	margin-left: auto;
+}
+
+#topbar ul {
+	list-style: none;
+	padding: 0;
+	margin: 0;
+	display: flex;
+	margin-left: -10px;
+}
+
+#topbar li {
+	margin-right: 10px;
+}
+
+#topbar li:last-child {
+	margin-right: 0;
+}
+
+#topbar li a {
+	color: #fff;
+	text-decoration: none;
+	
+}
+
+.dropdown-menu {
+	overflow-y: auto;
+	max-height: 400px;
+	white-space: nowrap;
+	word-break: break-all;
+	/* 다른 스타일들 */
+	right: auto;
+	left: 0;
+	/* 크기 유지를 위해 추가한 스타일 */
+	transform: translateX(-85%);
+}
+
+#navbar li a {
+        font-weight: bold;
+    }
+
+#NotificationBadge {
+    position: absolute;
+    top: 0;
+    right: 0;
+    background-color: #DC3545;
+    color: white;
+    border-radius: 50%;
+    padding: 0.2em 0.4em;
+    font-size: 11px;
+}
+
+  

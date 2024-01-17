@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="CenterInfoDAO">
+	<resultMap type="centerInfo" id="centerInfoResult">
+		<id property="icNumber" column="IC_NUMBER"/>
+		<result property="title" column="IC_TITLE" />
+		<result property="content" column="IC_CONTENT" />
+		<result property="writerMemberCode" column="IC_WRITER_MEMBER_CODE" />
+		<result property="regDate" column="IC_REGDATE" />
+		<result property="cnt" column="IC_VIEWS" />
+		<result property="openYN" column="IC_OPEN_YN" />
+		<result property="ctName" column="CT_NAME" />
+	</resultMap>
+
+	<select id="getCenterInfoList" resultMap="centerInfoResult">
+		SELECT IC_NUMBER, IC_TITLE, IC_CONTENT, IC_REGDATE, IC_VIEWS, IC_OPEN_YN, IC_WRITER_MEMBER_CODE, 
+		(SELECT CT_NAME FROM TBL_CENTER WHERE CT_CODE=IC_WRITER_MEMBER_CODE) as CT_NAME 
+		FROM TBL_INFO_C
+		WHERE IC_WRITER_MEMBER_CODE=#{ctCode}
+	</select>
+	<select id="getCenterInfo" resultMap="centerInfoResult" parameterType="centerInfo">
+		SELECT IC_NUMBER, IC_TITLE, IC_CONTENT, IC_REGDATE, IC_VIEWS, IC_OPEN_YN, IC_WRITER_MEMBER_CODE, 
+		(SELECT CT_NAME FROM TBL_CENTER WHERE CT_CODE=IC_WRITER_MEMBER_CODE) as CT_NAME 
+		FROM TBL_INFO_C WHERE IC_NUMBER=${icNumber}
+	</select>
+	
+	<!-- 공지사항 등록 및 등록된 시퀀스 가져오기 위함 -->
+	<insert id="insertCenterInfo" parameterType="centerInfo" useGeneratedKeys="true" keyProperty="icNumber">
+	    <!-- MyBatis에서 생성된 키를 받아오기 위한 selectKey 설정 -->
+	    <selectKey keyProperty="icNumber" order="AFTER" resultType="int">
+	        <!-- RETURNING 절을 사용하여 삽입된 행의 IC_NUMBER 값을 반환 -->
+	        INSERT INTO TBL_INFO_C(IC_NUMBER, IC_TITLE, IC_CONTENT, IC_WRITER_MEMBER_CODE, IC_REGDATE, IC_OPEN_YN)
+	        VALUES(nextval('seq_center_info'), #{title}, #{content}, #{writerMemberCode}, CURRENT_TIMESTAMP, #{openYN})
+	        RETURNING IC_NUMBER
+	    </selectKey>
+	</insert>
+
+	<update id="updateCenterInfo" parameterType="centerInfo">
+		UPDATE TBL_INFO_C 
+		SET IC_TITLE=#{title}, IC_CONTENT=#{content}, IC_OPEN_YN=#{openYN} WHERE IC_NUMBER=#{icNumber}
+	</update>
+	<delete id="deleteCenterInfo" parameterType="Integer">
+		DELETE FROM TBL_INFO_C WHERE IC_NUMBER = #{icNumber}
+	</delete>
+
+	
+	
+	
+
+	
+</mapper>
